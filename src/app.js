@@ -1,19 +1,29 @@
 const express = require('express');
+const userAuth = require('./middlewares/userAuth');
 
 const app = express();
 
-app.get('/', (req, res) => {
-    res.send('root root');
+// app.use('/user', userAuth)
+
+
+app.get('/user', userAuth, (req, res, next) => {
+    console.log('Sending response to user ...');
+    res.send({name: 'John Doe', email: "aaad@gmail.com"});
 })
 
-app.use('/home', (req, res) => {
-    res.send('home home');
+app.post('/user', userAuth, (req, res) => {
+    res.send({message: 'User created successfully'});
 })
 
-app.use((req, res) => {
+app.delete('/user', userAuth, (req, res) => {
     // this callback is called request handler.
+    res.send({message: 'User deleted successfully'});
+})
 
-    res.send('Yes we can Himanshu. Yes we can. Yes we can. Yes I can do it. Yes I can do it. Yes I can do it Himanshu. With the blessing of Bihariji Baba and Jwala Mata I can do it.')
+app.use('/', (err, req, res, next) => {
+    if(err){
+        res.status(500).send({message: 'Internal Server Error'});
+    }
 })
 
 app.listen(7777, () => {
