@@ -60,7 +60,15 @@ const userSchema = new mongoose.Schema({
     }
 },    
 {
-    timestamps: true
+    timestamps: true,
+    // Never include the password hash when a user document is serialized (res.send / JSON.stringify).
+    // The field is still readable in code (e.g. user.password for validatePassword).
+    toJSON: {
+        transform: (doc, ret) => {
+            delete ret.password;
+            return ret;
+        }
+    }
 })
 
 userSchema.methods.getJWT = function(){
