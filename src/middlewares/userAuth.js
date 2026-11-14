@@ -14,12 +14,12 @@ const userAuth = async (req, res, next) => {
         const user = await User.findById(userId)
         if(!user){
             res.status(401).send({message: 'Unauthorized User not found'});
+            return;
         }
         req.user = user;
+        next();
     }catch(err){
         res.status(401).send({message: 'Unauthorized', error: err.message});
-    }finally{
-        next();
     }
 
 }
