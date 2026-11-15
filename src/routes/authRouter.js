@@ -8,7 +8,7 @@ const authRouter = express.Router();
 // Shared by signup and login so both sessions behave the same.
 const setAuthCookie = (res, user) => {
     const token = user.getJWT();
-    res.cookie("token", token, {maxAge: 60 * 1000});
+    res.cookie("token", token, {maxAge: 60 * 60 * 1000});
 };
 
 authRouter.post('/signup', async (req, res) => {

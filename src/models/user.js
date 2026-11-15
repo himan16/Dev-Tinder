@@ -73,7 +73,7 @@ const userSchema = new mongoose.Schema({
 
 userSchema.methods.getJWT = function(){
     const user = this;
-    const token =  jwt.sign({userId: user._id}, 'randomSecretKey', {expiresIn: '7d'});
+    const token =  jwt.sign({userId: user._id}, 'randomSecretKey', {expiresIn: '1h'});
     return token;
 }
 
