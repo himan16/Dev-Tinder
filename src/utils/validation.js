@@ -38,9 +38,14 @@ function readableFieldMessage(field, fieldError) {
     }
 }
 
-// Maps an error thrown by user.save() to { status, body }.
-// ValidationError -> 400, duplicate key (unique index) -> 409, anything else -> 500.
-function toSignupErrorResponse(err) {
+// Maps an error thrown by user.save() / findByIdAndUpdate() to { status, body }.
+// ValidationError / CastError -> 400, duplicate key (unique index) -> 409, anything else -> 500 with fallbackMessage.
+function toErrorResponse(err, fallbackMessage) {
+    // With runValidators, a value that cannot be cast (e.g. age: "abc") on an update surfaces as a top-level CastError.
+    if (err.name === 'CastError') {
+        const message = `${err.path} has an invalid value.`;
+        return {status: 400, body: {message, errors: {[err.path]: message}}};
+    }
     if (err.name === 'ValidationError') {
         const errors = {};
         for (const [field, fieldError] of Object.entries(err.errors)) {
@@ -57,7 +62,7 @@ function toSignupErrorResponse(err) {
             body: {message: 'An account with this email already exists.', errors: {email: 'An account with this email already exists.'}}
         };
     }
-    return {status: 500, body: {message: 'Error signing up user ...'}};
+    return {status: 500, body: {message: fallbackMessage}};
 }
 
-module.exports = {PASSWORD_MIN_LENGTH, getPasswordError, toSignupErrorResponse};
+module.exports = {PASSWORD_MIN_LENGTH, getPasswordError, toErrorResponse};

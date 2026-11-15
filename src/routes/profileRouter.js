@@ -3,7 +3,7 @@ const bcrypt = require('bcrypt');
 const profileRouter = express.Router();
 const userAuth = require('../middlewares/userAuth');
 const User = require('../models/user');
-const {getPasswordError} = require('../utils/validation');
+const {getPasswordError, toErrorResponse} = require('../utils/validation');
 
 profileRouter.get('/profile/view', userAuth, async (req, res) => {
     const user = req.user;
@@ -20,10 +20,13 @@ profileRouter.put('/profile/edit', userAuth, async (req, res) => {
             res.status(400).send({message: 'Invalid fields in update request ...'});
             return;
         }
-        const data = await User.findByIdAndUpdate(userId, dataToUpdate, {new: true});
+        // runValidators applies the schema rules (min age, gender, lengths ...) to the fields being updated.
+        // They are skipped by default for findByIdAndUpdate.
+        const data = await User.findByIdAndUpdate(userId, dataToUpdate, {new: true, runValidators: true});
         res.send({message: 'User updated successfully ...', updatedUser: data});
     }catch(reason){
-        res.status(500).send({message: 'Error updating user ...', error: reason});
+        const {status, body} = toErrorResponse(reason, 'Error updating user ...');
+        res.status(status).send(body);
     }
 })
 

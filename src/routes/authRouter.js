@@ -1,7 +1,7 @@
 const express = require('express');
 const bcrypt = require('bcrypt');
 const User = require('../models/user');
-const {getPasswordError, toSignupErrorResponse} = require('../utils/validation');
+const {getPasswordError, toErrorResponse} = require('../utils/validation');
 
 const authRouter = express.Router();
 
@@ -35,7 +35,7 @@ authRouter.post('/signup', async (req, res) => {
         setAuthCookie(res, user);
         res.send({message: 'User signed up successfully ...', user});
     }catch(err){
-        const {status, body} = toSignupErrorResponse(err);
+        const {status, body} = toErrorResponse(err, 'Error signing up user ...');
         res.status(status).send(body);
     }
 });
