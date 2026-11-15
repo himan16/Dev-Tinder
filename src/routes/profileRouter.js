@@ -3,6 +3,7 @@ const bcrypt = require('bcrypt');
 const profileRouter = express.Router();
 const userAuth = require('../middlewares/userAuth');
 const User = require('../models/user');
+const {getPasswordError} = require('../utils/validation');
 
 profileRouter.get('/profile/view', userAuth, async (req, res) => {
     const user = req.user;
@@ -33,6 +34,11 @@ profileRouter.post('/profile/changePassword', userAuth, async (req, res) => {
         const isCurrentPasswordCorrect = await user.validatePassword(inputCurrentPassword);
         if(!isCurrentPasswordCorrect){
             res.status(400).send({message: 'Current password is incorrect ...'});
+            return;
+        }
+        const newPasswordError = getPasswordError(inputNewPassword);
+        if(newPasswordError){
+            res.status(400).send({message: newPasswordError, errors: {password: newPasswordError}});
             return;
         }
         const newPasswordHash = await bcrypt.hash(inputNewPassword, 10);
