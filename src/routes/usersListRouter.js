@@ -43,7 +43,7 @@ usersListRouter.get('/requests/received',userAuth, async(req, res) => {
     
     const loggedInUser = req.user
     try{
-        const requests = await ConnectionRequest.find({toUserId: loggedInUser._id, status: 'interested'}).populate('fromUserId', ["firstName", "lastName", "avtar"]);
+        const requests = await ConnectionRequest.find({toUserId: loggedInUser._id, status: 'interested'}).populate('fromUserId', ["firstName", "lastName", "avtar", "bio", "skills", "email", "age"]);
         res.send({message: 'Connection requests fetched successfully ...', requests});
     }catch(error){
         res.status(500).send({message: 'Error fetching connection requests ...', error: error.message});
