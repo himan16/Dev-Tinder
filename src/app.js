@@ -8,14 +8,19 @@ const connectionRequestRouter = require('./routes/connectionRequestRouter');
 
 const app = express();
 
-const ALLOWED_ORIGIN = 'http://localhost:5173';
+//Exact origins (scheme + host + port) that may call this API. Add new frontends here.
+const ALLOWED_ORIGINS = new Set([
+    'http://localhost:5173',
+    'http://15.134.202.131',
+]);
 
-//Manual CORS middleware. Must be registered before the routes. It only allows the frontend origin to call this API.
+//Manual CORS middleware. Must be registered before the routes. It only allows the origins listed above to call this API.
 //Access-Control-Allow-Credentials lets the browser send/receive cookies (needed for the JWT cookie), and requires an explicit origin (not '*').
 app.use((req, res, next) => {
     const origin = req.headers.origin;
+    const isAllowedOrigin = ALLOWED_ORIGINS.has(origin);
 
-    if (origin === ALLOWED_ORIGIN) {
+    if (isAllowedOrigin) {
         res.setHeader('Access-Control-Allow-Origin', origin);
         res.setHeader('Access-Control-Allow-Credentials', 'true');
         res.setHeader('Vary', 'Origin');
@@ -23,7 +28,7 @@ app.use((req, res, next) => {
 
     //Preflight request: the browser sends OPTIONS first (JSON bodies, PATCH/DELETE etc.). Answer it here and skip the routers.
     if (req.method === 'OPTIONS') {
-        if (origin === ALLOWED_ORIGIN) {
+        if (isAllowedOrigin) {
             res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE,OPTIONS');
             res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
         }
